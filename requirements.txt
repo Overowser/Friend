@@ -1,0 +1,5 @@
+SpeechRecognition
+python-dotenv
+groq
+edge_tts
+pydub
