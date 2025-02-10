@@ -98,7 +98,7 @@ async def main():
         print("user: ", user_text)
         response = groq_chatbot_conversation(user_text, model="llama-3.1-8b-instant", history_file="First_try.txt")
         print("bot: ", response)
-        await speak(response, voice="en-US-AnaNeural", rate="+50%")
+        await speak(response, voice="en-US-AnaNeural", rate="+20%")
 
 if __name__ == "__main__":
     asyncio.run(main())
