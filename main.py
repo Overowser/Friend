@@ -96,7 +96,7 @@ async def main():
     while True:
         user_text = recognize_speech_from_mic(r)
         print("user: ", user_text)
-        response = groq_chatbot_conversation(user_text, model="llama-3.1-8b-instant", history_file="First_try.txt")
+        response = groq_chatbot_conversation(user_text, model="llama-3.1-8b-instant")
         print("bot: ", response)
         await speak(response, voice="en-US-AnaNeural", rate="+20%")
 
