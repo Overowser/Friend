@@ -1,5 +1,6 @@
 import speech_recognition as sr
 from groq import Groq
+import ollama
 import os
 import json
 from dotenv import load_dotenv
@@ -28,7 +29,7 @@ def recognize_speech_from_mic(recognizer):
         print("Could not recognize ...")
         return recognize_speech_from_mic(recognizer)
 
-def groq_chatbot_conversation(new_message, model="llama-3.1-8b-instant", api_key=None, history_file="conversation_history.txt"):
+def converse(new_message, model="llama-3.1-8b-instant", api_key=None, history_file="conversation_history.txt"):
     """
     A function to interact with a Groq-based chatbot that maintains conversation context using a text file.
 
@@ -41,34 +42,42 @@ def groq_chatbot_conversation(new_message, model="llama-3.1-8b-instant", api_key
     Returns:
     - str: The chatbot's response.
     """
-    api_key = api_key or os.getenv("GROQ_API_KEY")
-    if not api_key:
-        raise ValueError("API key is required. Set it via the 'api_key' parameter or the 'GROQ_API_KEY' environment variable.")
-    
+
     # Load conversation history
     if os.path.exists(history_file):
         with open(history_file, "r", encoding="utf-8") as file:
             messages = json.load(file)
     else:
         messages = []
-    
+
     # Append new user message
     messages.append({"role": "user", "content": new_message})
-    
-    client = Groq()
-    completion = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        temperature=1,
-        max_completion_tokens=1024,
-        top_p=1,
-        stream=True,
-        stop=None,
-    )
-    
-    response_text = ""
-    for chunk in completion:
-        response_text += chunk.choices[0].delta.content or ""
+
+    api_key = api_key or os.getenv("GROQ_API_KEY")
+
+    if api_key:
+        client = Groq()
+        completion = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            temperature=1,
+            max_completion_tokens=1024,
+            top_p=1,
+            stream=True,
+            stop=None,
+        )
+
+        response_text = ""
+        for chunk in completion:
+            response_text += chunk.choices[0].delta.content or ""
+
+    else:
+        response = ollama.chat(
+        model="llama3.2:3b",
+        messages=messages
+        )
+        response_text = response["message"]["content"]
+
     
     # Append assistant response
     messages.append({"role": "assistant", "content": response_text})
@@ -79,7 +88,7 @@ def groq_chatbot_conversation(new_message, model="llama-3.1-8b-instant", api_key
     
     return response_text
 
-async def speak(text: str, voice="en-US-AriaNeural", rate="+100%"):
+async def speak(text: str, voice="en-US-MichelleNeural", rate="+100%"):
     """Convert text to speech and play it."""
     tts = edge_tts.Communicate(text, voice, rate=rate)
     stream = io.BytesIO()
@@ -96,9 +105,9 @@ async def main():
     while True:
         user_text = recognize_speech_from_mic(r)
         print("user: ", user_text)
-        response = groq_chatbot_conversation(user_text, model="llama-3.1-8b-instant")
+        response = converse(user_text)
         print("bot: ", response)
-        await speak(response, voice="en-US-AnaNeural", rate="+20%")
+        await speak(response, voice="en-US-MichelleNeural", rate="+20%")
 
 if __name__ == "__main__":
     asyncio.run(main())

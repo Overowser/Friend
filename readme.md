@@ -1,63 +1,86 @@
-# Friend Project
+# Friend – Voice Chatbot with Local and Cloud LLM Support
 
-This project is a voice-based chatbot that uses speech recognition to convert voice input to text, interacts with a Groq-based chatbot to generate responses, and converts the responses back to speech for playback. The main script integrates these functionalities into a continuous loop for real-time interaction.
+Friend is a voice-based chatbot that converts speech to text, generates responses using either a local LLM or Groq’s API, and then speaks the responses back. It’s designed as a self-contained loop for real-time, private voice interaction.
 
 ## Features
-1. **Speech Recognition**: Converts voice input from the microphone to text.
-2. **Chatbot Conversation**: Interacts with a Groq-based chatbot to generate responses.
-3. **Text-to-Speech**: Converts the chatbot's text response back to speech and plays it.
 
-## Requirements
-The project requires the following Python packages:
-- SpeechRecognition
-- python-dotenv
-- groq
-- edge_tts
-- pydub
+- Speech Recognition – Converts voice input into text using Google's Speech Recognition API.
+- LLM Integration – Uses either:
+  - A local LLM, if available
+  - Or falls back to Groq API for remote LLM access automatically if the API key is configured
+- Conversation History – Maintains a simple text-based memory between turns.
+- Text-to-Speech (TTS) – Reads responses aloud using edge-tts and pydub.
 
-These can be installed using the `requirements.txt` file:
-```sh
+## Usage
+
+### Installation
+
+Install dependencies from the included `requirements.txt`:
+
+```bash
 pip install -r requirements.txt
 ```
 
-## Usage
-Speech Recognition
-The recognize_speech_from_mic function converts audio from the microphone to text using the Google Speech Recognition API.
+### Environment Setup
 
-LLM Chatbot
-The groq_chatbot_conversation function interacts with a Groq-based chatbot that maintains conversation context using a text file.
+Create a `.env` file with your Groq API key:
 
-Text-to-Speech
-The speak function converts text to speech and plays it using the edge_tts and pydub libraries.
-
-Main Loop
-The main loop combines the above functions to create a voice bot that listens to the user, generates a response, and speaks the response.
-
-### Running the Project
-1. Ensure you have all the required packages installed.
-2. Run the `main.py` script:
-```sh
-python main.py
-```
-
-### Jupyter Notebook
-The project also includes a Jupyter Notebook `main.ipynb` that demonstrates the individual components:
-1. **Speech Recognition**: Functions to convert audio to text.
-2. **Chatbot Conversation**: Function to maintain conversation context with the chatbot.
-3. **Text-to-Speech**: Function to convert text to speech and play it.
-
-## Environment Variables
-The project uses environment variables for configuration. Create a `.env` file in the project root with the following content:
-```
+```bash
 GROQ_API_KEY=your_groq_api_key_here
 ```
 
-## .gitignore
-The `.gitignore` file includes:
-- `venv`
-- `.env`
-- `*_history.txt`
-- `test.ipynb`
+### LLM Setup (Local Use)
+
+- You need to install Ollama from: https://ollama.com/download
+- Run the following to pull the model used:
+
+```bash
+ollama pull llama3.2:3b
+```
+
+- You can explore other llama3.2 versions at: https://ollama.com/library/llama3.2:3b
+- Or browse all available models here: https://ollama.com/search
+
+> Note: The LLM was not prompted or fine-tuned in this project.
+
+## Running the App
+
+### Python Version
+
+This code was tested under Python 3.8.5.
+
+### Option 1: Python Script
+
+Start the chatbot by running:
+
+```bash
+python main.py
+```
+
+The loop will:
+- Wait for voice input (with timeout)
+- Transcribe speech to text
+- Generate a response (local or remote LLM)
+- Speak the reply using TTS
+- Repeat
+
+If input is not recognized, the bot prompts via text to retry.
+
+### Option 2: Jupyter Notebook
+
+Use `main.ipynb` to test components separately:
+- Speech recognition
+- Chatbot logic
+- TTS playback
+
+## .gitignore Highlights
+
+The project ignores:
+- Virtual environments
+- API keys
+- History files
+- Local notebooks for testing
 
 ## License
-This project is licensed under the MIT License.
+
+Licensed under the MIT License.
